@@ -21,7 +21,7 @@ trait Fish[S] { // to have a list of those fishes
     def initialState: S
 }
 
-final case class ConnectToBus(b: LookupBusImpl)
+final case class ConnectToBus(b: LookupBusImpl, topic: String)
 
 final case class AddFish(f: FishJar[Any])
 
@@ -42,7 +42,9 @@ class Pond extends Actor {
   var connected: Boolean = true
   var fishes: Vector[FishJar[_]] = Vector()
   def receive = {
-    case cb: ConnectToBus => lookupBus = cb.b
+    case cb: ConnectToBus =>
+        lookupBus = cb.b
+        lookupBus.subscribe(self, cb.topic)
     case Disconnect =>
         println("Disconnecting")
         connected = false

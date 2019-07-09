@@ -14,10 +14,8 @@ object Main {
     val a = system.actorOf(Props[Pond], "helloWorld")
     val b = system.actorOf(Props[Pond], "helloWorld2")
     val lookupBus = new LookupBusImpl
-    lookupBus.subscribe(a, "greetings")
-    lookupBus.subscribe(b, "greetings")
-    a ! ConnectToBus(lookupBus)
-    b ! ConnectToBus(lookupBus)
+    a ! ConnectToBus(lookupBus, "greetings")
+    b ! ConnectToBus(lookupBus, "greetings")
     val counterFish: CounterFish = new CounterFish()
     val stringFish: StringFish = new StringFish()
     a ! AddFish(new FishJar[Int](counterFish))
