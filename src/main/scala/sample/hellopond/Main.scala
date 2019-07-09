@@ -33,6 +33,6 @@ object Main {
     // lookupBus.publish(EventEnvelope("greetings", CounterEvent(4, "source1", 1)))
     // lookupBus.publish(EventEnvelope("greetings", CounterEvent(5, "source1", 2)))
     // lookupBus.publish(EventEnvelope("greetings", CounterEvent(3, "source1", 3)))
-    lookupBus.publish(EventEnvelope("greetings", TerminateEvent(6, "grimReaper")))
+   a ! TerminateEvent()
   }
 }
