@@ -3,21 +3,21 @@ package sample.hellopond
 import akka.actor.Actor
 import scala.collection.immutable.TreeMap
 import scala.collection.immutable.Set
+import scala.collection.immutable.{Seq => ISeq}
 import scala.collection.mutable.ArrayBuffer
 
 
 class Event(val timestamp: Int, val source: String)
-case class StringEvent(override val timestamp: Int, override val source: String, value: String) extends Event(timestamp, source)
-case class CounterEvent(override val timestamp: Int, override val source: String, value: Int) extends Event(timestamp, source)
+
 case class TerminateEvent(override val timestamp: Int, override val source: String) extends Event(timestamp, source)
+
 final case class EventEnvelope(topic: String, payload: Event)
 
 class Command
-case class CounterAddCommand(value: Int) extends Command
 
 trait Fish[S] { // to have a list of those fishes
     def onEvent(e: Event, state: S): S
-    def onCommand(c: Command, state: S): Seq[Event]
+    def onCommand(c: Command, state: S): ISeq[Event]
     def initialState: S
 }
 
@@ -28,54 +28,6 @@ final case class AddFish(f: FishJar[Any])
 final case class Disconnect()
 
 final case class Reconnect()
-
-object Timestamp {
-    var ts = 0
-    def now(): Int = {
-        ts += 1
-        return ts
-    }
-}
-
-// FIXME: the states table will be inside the fish, and instead of state, we will pass only state index, that will be validated
-// the same would go for commands; unrecognized something is removed, obviously we react only to something we like
-// FIXME: incremental generator for timestamps; maybe add a multimap, so that you can have duplicate timestamps
-
-class CounterFish extends Fish[Int] {
-    def onEvent(e: Event, state:Int): Int = {
-        e match {
-            case CounterEvent(_, _, value) =>
-                println(s"counterFish, will return state of ${state+value}")
-                return state + value
-            case other => println(s"unrecognized message: $other")
-        }
-        return state
-    }
-    def onCommand(c: Command, state: Int): Seq[Event] = {
-        c match {
-            case CounterAddCommand(value) => return Vector(CounterEvent(Timestamp.now(), "counterFish", value))
-            case _ =>
-        }
-        return Vector()
-    }
-    def initialState: Int = 0
-}
-
-class StringFish extends Fish[String] {
-    def onEvent(e: Event, state: String): String = {
-        e match {
-            case StringEvent(_, _, str) => println(s"string $str")
-            case other => println(s"stringFish unrecognized message $other")
-        }
-        return state
-    }
-
-    def onCommand(c: Command, state: String): Seq[Event] = {
-        return Vector()
-    }
-
-    def initialState: String = ""
-}
 
 class Pond extends Actor {
     // disconnect
