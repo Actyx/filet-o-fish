@@ -3,24 +3,13 @@ package sample.hellopond
 import akka.actor.Actor
 import scala.collection.immutable.TreeMap
 import scala.collection.immutable.Set
-import scala.collection.immutable.{Seq => ISeq}
 import scala.collection.mutable.ArrayBuffer
 import akka.event.Logging
 
 
-class Event(val timestamp: Int, val source: String)
-
 case class TerminateEvent()
 
 final case class EventEnvelope(topic: String, payload: Event)
-
-class Command
-
-trait Fish[S] { // to have a list of those fishes
-    def onEvent(e: Event, state: S): S
-    def onCommand(c: Command, state: S): ISeq[Event]
-    def initialState: S
-}
 
 final case class ConnectToBus(b: LookupBusImpl, topic: String)
 
