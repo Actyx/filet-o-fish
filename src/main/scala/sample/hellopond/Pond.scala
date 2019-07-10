@@ -37,7 +37,7 @@ class Pond extends Actor {
   var lookupBus: LookupBusImpl = null
 
   // all events that this pond saw, sorted by timestamps
-  var events: TreeMap[Int, Set[Event]] = TreeMap() // map goes from timestamps to events
+  var events: TreeMap[Long, Set[Event]] = TreeMap() // map goes from timestamps to events
 
   // all the states of all the fishes contained in this pond, used for the time travel algorithm
   var states: Vector[Vector[_]] = Vector()
@@ -98,7 +98,7 @@ class Pond extends Actor {
       if (!connected) { // if we are not connected, put it into a queue for later processing
         incoming :+ e
       } else {          // otherwise start processing
-        val t: Int = e.timestamp
+        val t: Long = e.timestamp
 
         // insert into treemap
         events = if (events.contains(t)) {
@@ -109,8 +109,8 @@ class Pond extends Actor {
         }
 
         // temporarily convert the map to a sequence (list)
-        val evSeq: Seq[(Int, Event)] = events.foldLeft(Seq.empty[(Int, Event)]) {
-          (acc: Seq[(Int, Event)], elem: (Int, Set[Event])) =>
+        val evSeq: Seq[(Long, Event)] = events.foldLeft(Seq.empty[(Long, Event)]) {
+          (acc: Seq[(Long, Event)], elem: (Long, Set[Event])) =>
             acc ++ elem._2.map(el => (elem._1, el)).toSeq
         }
 

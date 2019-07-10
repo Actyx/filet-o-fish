@@ -3,7 +3,7 @@ package sample.hellopond
 import scala.collection.immutable.{Seq => ISeq}
 
 // Fish that reacts to CounterAddCommands and CounterEvents
-case class CounterEvent(override val timestamp: Int, override val source: String, value: Int)
+case class CounterEvent(override val timestamp: Long, override val source: String, value: Int)
     extends Event(timestamp, source)
 
 case class CounterAddCommand(value: Int) extends Command
@@ -23,7 +23,7 @@ object CounterFish {
   // when CounterAddCommand comes, pass the value in an event
   def onCommand(c: Command, state: Int): ISeq[Event] = {
     c match {
-      case CounterAddCommand(value) => return Vector(CounterEvent((System.currentTimeMillis() / 100000).toInt, "counterFish", value))
+      case CounterAddCommand(value) => return Vector(CounterEvent(System.currentTimeMillis(), "counterFish", value))
       case _ =>
     }
     Vector.empty

@@ -8,10 +8,10 @@ import scala.collection.immutable.{Seq => ISeq}
 case class ConsumerState(val consumeCommandEnabled: Boolean)
 
 // c1 / c2 on the diagram
-case class ConsumeA(override val timestamp: Int, override val source: String)
+case class ConsumeA(override val timestamp: Long, override val source: String)
     extends Event(timestamp, source)
 
-case class ConsumeB(override val timestamp: Int, override val source: String)
+case class ConsumeB(override val timestamp: Long, override val source: String)
     extends Event(timestamp, source)
 
 // cons on the diagram

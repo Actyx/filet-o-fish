@@ -8,7 +8,7 @@ import scala.collection.immutable.{Seq => ISeq}
 case class ProducerState(val produceCommandEnabled: Boolean, val amountConsumed: Int)
 
 // p on the diagram, we produce a useless Boolean value
-case class ProductEvent(override val timestamp: Int, override val source: String)
+case class ProductEvent(override val timestamp: Long, override val source: String)
     extends Event(timestamp, source)
 
 // prod on the diagram

@@ -3,7 +3,7 @@ package sample.hellopond
 import scala.collection.immutable.{Seq => ISeq}
 
 // Roots of class hierarchies for Events and Commands - inherit your own from them
-class Event(val timestamp: Int, val source: String)
+class Event(val timestamp: Long, val source: String)
 class Command
 
 // The Fish interface, in FP style
