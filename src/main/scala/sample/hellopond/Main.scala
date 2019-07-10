@@ -20,7 +20,7 @@ object Main {
     // create a new messageBus
     val messageBus = new LookupBusImpl
 
-    // ask the two create ponds to connect to it (channel: greetings)
+    // ask the two created ponds to connect to it (channel: greetings)
     a ! ConnectToBus(messageBus, "greetings")
     b ! ConnectToBus(messageBus, "greetings")
 
@@ -32,7 +32,7 @@ object Main {
     a ! AddFish(new FishJar[Int](counterFish))
     b ! AddFish(new FishJar[Int](counterFish))
     a ! AddFish(new FishJar[String](stringFish))
-    
+
     // a ! Disconnect
     a ! CounterAddCommand(3)
     Thread.sleep(3000)
