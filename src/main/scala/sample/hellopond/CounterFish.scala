@@ -23,7 +23,7 @@ object CounterFish {
   // when CounterAddCommand comes, pass the value in an event
   def onCommand(c: Command, state: Int): ISeq[Event] = {
     c match {
-      case CounterAddCommand(value) => return Vector(CounterEvent(Timestamp.now(), "counterFish", value))
+      case CounterAddCommand(value) => return Vector(CounterEvent((System.currentTimeMillis() / 100000).toInt, "counterFish", value))
       case _ =>
     }
     Vector.empty

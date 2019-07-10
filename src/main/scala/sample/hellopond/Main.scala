@@ -33,12 +33,12 @@ object Main {
     b ! AddFish(new FishJar[Int](counterFish))
     a ! AddFish(new FishJar[String](stringFish))
 
-    // a ! Disconnect
+    a ! Disconnect
     a ! CounterAddCommand(3)
     Thread.sleep(3000)
     b ! CounterAddCommand(2)
     Thread.sleep(3000)
-    // a ! Reconnect
+    a ! Reconnect
     Thread.sleep(3000)
     // messageBus.publish(EventEnvelope("time", StringEvent(1, "timeSource", System.currentTimeMillis().toString())))
     // messageBus.publish(EventEnvelope("greetings", StringEvent(2, "source1", "hello")))
