@@ -17,7 +17,7 @@ case class ConsumeB(override val timestamp: Int, override val source: String, va
 // cons on the diagram
 case class ConsumeCommand(value: Boolean) extends Command
 
-class ConsumerA extends Fish[ConsumerState] {
+object ConsumerA {
   // when ProductEvent comes, enable the ConsumeCommand, by setting the state to true
   def onEvent(e: Event, state: ConsumerState): ConsumerState = {
     e match {
@@ -46,7 +46,7 @@ class ConsumerA extends Fish[ConsumerState] {
   def initialState: ConsumerState = ConsumerState(false)
 }
 
-class ConsumerB extends Fish[ConsumerState] {
+object ConsumerB {
   // when ProductEvent comes, enable the ConsumeCommand, by setting the state to true
   def onEvent(e: Event, state: ConsumerState): ConsumerState = {
     e match {

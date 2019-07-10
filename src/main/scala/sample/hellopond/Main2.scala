@@ -27,9 +27,9 @@ object Main2 {
     c2 ! ConnectToBus(messageBus, "greetings")
 
     // create the fishes
-    val producer: ProducerFish = new ProducerFish()
-    val consumerA: ConsumerA = new ConsumerA
-    val consumerB: ConsumerB = new ConsumerB
+    val producer: Fish[ProducerState] = Fish[ProducerState](ProducerFish.onEvent, ProducerFish.onCommand, ProducerFish.initialState)
+    val consumerA: Fish[ConsumerState] = Fish[ConsumerState](ConsumerA.onEvent, ConsumerA.onCommand, ConsumerA.initialState)
+    val consumerB: Fish[ConsumerState] = Fish[ConsumerState](ConsumerB.onEvent, ConsumerB.onCommand, ConsumerB.initialState)
 
     // and add them to the ponds
     p ! AddFish(new FishJar[ProducerState](producer))

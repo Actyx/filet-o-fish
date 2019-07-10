@@ -14,7 +14,7 @@ case class ProductEvent(override val timestamp: Int, override val source: String
 // prod on the diagram
 case class ProduceCommand(value: Boolean) extends Command
 
-class ProducerFish extends Fish[ProducerState] {
+object ProducerFish {
   // when ProductEvent comes, change the state to the value passed in the event
   def onEvent(e: Event, state: ProducerState): ProducerState = {
     e match {

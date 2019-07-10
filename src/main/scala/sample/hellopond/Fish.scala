@@ -6,9 +6,9 @@ import scala.collection.immutable.{Seq => ISeq}
 class Event(val timestamp: Int, val source: String)
 class Command
 
-// The Fish interface
-trait Fish[S] {
-  def onEvent(e: Event, state: S): S
-  def onCommand(c: Command, state: S): ISeq[Event]
-  def initialState: S
-}
+// The Fish interface, in FP style
+final case class Fish[S](
+  val onEvent: (Event, S) => S,
+  val onCommand: (Command, S) => ISeq[Event],
+  val initialState: S
+)

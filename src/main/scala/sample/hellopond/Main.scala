@@ -25,8 +25,8 @@ object Main {
     b ! ConnectToBus(messageBus, "greetings")
 
     // create two fishes (please note that our fishes are stateless, so can be reused)
-    val counterFish: CounterFish = new CounterFish()
-    val stringFish: StringFish = new StringFish()
+    val counterFish: Fish[Int] = Fish[Int](CounterFish.onEvent, CounterFish.onCommand, CounterFish.initialState)
+    val stringFish: Fish[String] = Fish[String](StringFish.onEvent, StringFish.onCommand, StringFish.initialState)
 
     // and add them to the ponds
     a ! AddFish(new FishJar[Int](counterFish))

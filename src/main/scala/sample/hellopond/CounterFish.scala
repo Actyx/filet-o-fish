@@ -8,7 +8,7 @@ case class CounterEvent(override val timestamp: Int, override val source: String
 
 case class CounterAddCommand(value: Int) extends Command
 
-class CounterFish extends Fish[Int] {
+object CounterFish {
   // when CounterEvent comes, add the value contained in it to the state
   def onEvent(e: Event, state: Int): Int = {
     e match {
