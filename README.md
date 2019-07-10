@@ -10,7 +10,7 @@ The central point is the `Pond.scala` file.
 Various `Main` files contain some showcases for the time travel algorithm.
 
 # Building
-In order to build, make sure you have Java >= 1.8 installed and install the [`sbt` program](https://www.scala-sbt.org/download.html).
+In order to build, make sure you have Java 1.8 installed (please update to the newest build to avoid repository connection troubles due to outdated certificates) and install the [`sbt` program](https://www.scala-sbt.org/download.html).
 `sbt` runs on JVM, so should work "straight out of the box".
 
 After the installation, go to the top-level directory of the project and type `sbt`. It will download its dependencies
