@@ -8,23 +8,23 @@ import scala.collection.immutable.{Seq => ISeq}
 case class ConsumerState(val consumeCommandEnabled: Boolean)
 
 // c1 / c2 on the diagram
-case class ConsumeA(override val timestamp: Int, override val source: String, value: Boolean)
+case class ConsumeA(override val timestamp: Int, override val source: String)
     extends Event(timestamp, source)
 
-case class ConsumeB(override val timestamp: Int, override val source: String, value: Boolean)
+case class ConsumeB(override val timestamp: Int, override val source: String)
     extends Event(timestamp, source)
 
 // cons on the diagram
-case class ConsumeCommand(value: Boolean) extends Command
+case class ConsumeCommand() extends Command
 
 object ConsumerA {
   // when ProductEvent comes, enable the ConsumeCommand, by setting the state to true
   def onEvent(e: Event, state: ConsumerState): ConsumerState = {
     e match {
-      case ProductEvent(_, _, _) =>
+      case ProductEvent(_, _) =>
         return ConsumerState(true)
-      case ConsumeA(_, _, _) => return ConsumerState(false)
-      case ConsumeB(_, _, _) => return ConsumerState(false)
+      case ConsumeA(_, _) => return ConsumerState(false)
+      case ConsumeB(_, _) => return ConsumerState(false)
       case other =>
     }
     return state
@@ -33,9 +33,9 @@ object ConsumerA {
   // when ProduceCommand comes, pass the value in an event
   def onCommand(c: Command, state: ConsumerState): ISeq[Event] = {
     c match {
-      case ConsumeCommand(value) =>
+      case ConsumeCommand() =>
         if (state.consumeCommandEnabled == true) {
-          return Vector(ConsumeA(Timestamp.now(), "consumerA", value))
+          return Vector(ConsumeA(Timestamp.now(), "consumerA"))
         } else {
             println("consumerA cannot consume in this state!")
         }
@@ -50,10 +50,10 @@ object ConsumerB {
   // when ProductEvent comes, enable the ConsumeCommand, by setting the state to true
   def onEvent(e: Event, state: ConsumerState): ConsumerState = {
     e match {
-      case ProductEvent(_, _, _) =>
+      case ProductEvent(_, _) =>
         return ConsumerState(true)
-      case ConsumeA(_, _, _) => return ConsumerState(false)
-      case ConsumeB(_, _, _) => return ConsumerState(false)
+      case ConsumeA(_, _) => return ConsumerState(false)
+      case ConsumeB(_, _) => return ConsumerState(false)
       case other =>
     }
     return state
@@ -62,9 +62,9 @@ object ConsumerB {
   // when ProduceCommand comes, pass the value in an event
   def onCommand(c: Command, state: ConsumerState): ISeq[Event] = {
     c match {
-      case ConsumeCommand(value) =>
+      case ConsumeCommand() =>
         if (state.consumeCommandEnabled == true) {
-          return Vector(ConsumeB(Timestamp.now(), "consumerB", value))
+          return Vector(ConsumeB(Timestamp.now(), "consumerB"))
         } else {
           println("consumerB cannot consume in this state!")
         }

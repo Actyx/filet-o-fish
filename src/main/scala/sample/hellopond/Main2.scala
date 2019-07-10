@@ -36,17 +36,17 @@ object Main2 {
     c1 ! AddFish(new FishJar[ConsumerState](consumerA))
     c2 ! AddFish(new FishJar[ConsumerState](consumerB))
     
-    p ! ProduceCommand(true)
+    p ! ProduceCommand()
 
     Thread.sleep(2000)
 
     // c2 ! Disconnect()
 
-    c1 ! ConsumeCommand(true)
+    c1 ! ConsumeCommand()
 
     Thread.sleep(500)
 
-    c2 ! ConsumeCommand(true)
+    c2 ! ConsumeCommand()
 
     Thread.sleep(500)
 
