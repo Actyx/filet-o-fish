@@ -38,7 +38,7 @@ object Main2 {
     
     p ! ProduceCommand(true)
 
-    Thread.sleep(1000)
+    Thread.sleep(2000)
 
     // c2 ! Disconnect()
 
@@ -53,6 +53,12 @@ object Main2 {
     // c2 ! Reconnect()
 
     Thread.sleep(3000)
+
+    c1 ! DumpFishStates()
+    c2 ! DumpFishStates()
+    p ! DumpFishStates()
+
+    Thread.sleep(500)
 
     p ! TerminateEvent()
   }

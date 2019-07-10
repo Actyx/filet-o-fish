@@ -26,6 +26,9 @@ final case class Reconnect()
 // to a given pond
 final case class AddFish(f: FishJar[Any])
 
+// dump the state of all fishes
+final case class DumpFishStates()
+
 class Pond extends Actor {
   // for actorLogging of messages
   val log = Logging(context.system, this)
@@ -43,6 +46,9 @@ class Pond extends Actor {
   // while the pond is disconnected
   var emissions: Vector[Event] = Vector()
 
+  // container to hold incoming events while the pond is disconnected
+  var incoming: Vector[Event] = Vector()
+
   // is the pond connected ?
   var connected: Boolean = true
 
@@ -55,15 +61,17 @@ class Pond extends Actor {
       lookupBus = cb.b
       lookupBus.subscribe(self, cb.topic)
 
-    case Disconnect =>
+    case Disconnect() =>
       log.info("Disconnecting")
       connected = false
 
-    case Reconnect =>
+    case Reconnect() =>
       log.info("Reconnecting")
       connected = true
       emissions.foreach(em => lookupBus.publish(EventEnvelope("greetings", em)))
       emissions = Vector()
+      incoming.foreach(_ => self ! _)
+      incoming = Vector()
 
     case AddFish(fish) =>
       log.info("Adding a fish to a pond")
@@ -75,7 +83,10 @@ class Pond extends Actor {
       }
       states = newStates
 
-    case _: TerminateEvent =>
+    case DumpFishStates() =>
+      log.info("Dumping fish states upon request: {}", states)
+
+    case TerminateEvent() =>
       log.info("Terminating the whole actor system")
       context.system.terminate()
   }
@@ -84,61 +95,65 @@ class Pond extends Actor {
   // events are being received on the event bus
   def eventHandler: PartialFunction[Any, Unit] = {
     case e: Event =>
-      val t: Int = e.timestamp
+      if (!connected) { // if we are not connected, put it into a queue for later processing
+        incoming :+ e
+      } else {          // otherwise start processing
+        val t: Int = e.timestamp
 
-      // insert into treemap
-      events = if (events.contains(t)) {
-        val nset: Set[Event] = events(t) + e
-        events + (t -> nset)
-      } else {
-        events + (t -> Set(e))
-      }
+        // insert into treemap
+        events = if (events.contains(t)) {
+          val nset: Set[Event] = events(t) + e
+          events + (t -> nset)
+        } else {
+          events + (t -> Set(e))
+        }
 
-      // temporarily convert the map to a sequence (list)
-      val evSeq: Seq[(Int, Event)] = events.foldLeft(Seq.empty[(Int, Event)]) {
-        (acc: Seq[(Int, Event)], elem: (Int, Set[Event])) =>
-          acc ++ elem._2.map(el => (elem._1, el)).toSeq
-      }
+        // temporarily convert the map to a sequence (list)
+        val evSeq: Seq[(Int, Event)] = events.foldLeft(Seq.empty[(Int, Event)]) {
+          (acc: Seq[(Int, Event)], elem: (Int, Set[Event])) =>
+            acc ++ elem._2.map(el => (elem._1, el)).toSeq
+        }
 
-      // find the place from which we start time travel replay (usually the new event should be last)
-      val evInd = evSeq.indexWhere(_._1 >= t)
-      log.info(
-        s"Forwarding event to fishes, replaying from $evInd to ${evSeq.length}"
-      )
+        // find the place from which we start time travel replay (usually the new event should be last)
+        val evInd = evSeq.indexWhere(_._1 >= t)
+        log.info(
+          s"Forwarding event to fishes, replaying from $evInd to ${evSeq.length}"
+        )
 
-      // newly generated state
-      var newState: Vector[_] = Vector()
+        // newly generated state
+        var newState: Vector[_] = Vector()
 
-      // state of old fishes corresponding to given event slot
-      var curState: Vector[_] = if (evInd > 0) {
-        states(evInd - 1)
-      } else {
-        fishes.map(fj => fj.fish.initialState)
-      }
+        // state of old fishes corresponding to given event slot
+        var curState: Vector[_] = if (evInd > 0) {
+          states(evInd - 1)
+        } else {
+          fishes.map(fj => fj.fish.initialState)
+        }
 
-      // time travel algorithm - generate states for events and place them in the right slots
-      evSeq.slice(evInd, evSeq.length).zipWithIndex.foreach {
-        case (ev, index) => {
-          fishes.zipWithIndex.foreach {
-            case (fj, ind) => {
-              val nState = fj.onEvent(ev._2, fj.toFishState(curState(ind)))
-              newState = newState :+ nState
+        // time travel algorithm - generate states for events and place them in the right slots
+        evSeq.slice(evInd, evSeq.length).zipWithIndex.foreach {
+          case (ev, index) => {
+            fishes.zipWithIndex.foreach {
+              case (fj, ind) => {
+                val nState = fj.onEvent(ev._2, fj.toFishState(curState(ind)))
+                newState = newState :+ nState
+              }
             }
           }
+          curState = newState.toVector
+          if (states.length <= index + evInd) {
+            states = states :+ curState
+          } else {
+            states = states.updated(index + evInd, curState)
+          }
         }
-        curState = newState.toVector
-        if (states.length <= index + evInd) {
-          states = states :+ curState
-        } else {
-          states = states.updated(index + evInd, curState)
-        }
-      }
 
-      //   log.info(
-      //     s"end states length: ${states.length} events length ${events.size}"
-      //   )
-      log.info("After time travel states table: {}", states)
-      log.info("After time travel events table: {}", events)
+        //   log.info(
+        //     s"end states length: ${states.length} events length ${events.size}"
+        //   )
+        log.info("After time travel states table: {}", states)
+        log.info("After time travel events table: {}", events)
+      }
   }
 
   // handler for the commands, commands are received directly by the pond
