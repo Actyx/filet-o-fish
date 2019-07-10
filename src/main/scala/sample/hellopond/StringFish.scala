@@ -2,6 +2,7 @@ package sample.hellopond
 
 import scala.collection.immutable.{Seq => ISeq}
 
+// Fish that reacts to StringEvents, does not handle commands
 case class StringEvent(override val timestamp: Int, override val source: String, value: String)
     extends Event(timestamp, source)
 
